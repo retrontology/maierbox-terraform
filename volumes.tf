@@ -5,12 +5,6 @@ resource "libvirt_pool" "k8s" {
   target = {
     path = "/var/lib/libvirt/images/k8s"
   }
-
-  create = {
-    build     = true
-    start     = true
-    autostart = true
-  }
 }
 
 # Base volume
