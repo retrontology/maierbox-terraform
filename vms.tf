@@ -1,26 +1,31 @@
 # Basic VM configuration
 resource "libvirt_domain" "nodes" {
-  for_each = { for node in var.nodes : node.name => node }
-  name   = each.value.name
-  memory = each.value.memory
-  memory_unit   = each.value.memory_unit
-  vcpu   = each.value.vcpu
-  type   = "kvm"
-  running = true
-  autostart = true
+  for_each    = { for node in var.nodes : node.name => node }
+  name        = each.value.name
+  memory      = each.value.memory
+  memory_unit = each.value.memory_unit
+  vcpu        = each.value.vcpu
+  type        = "kvm"
+  running     = true
+  autostart   = true
 
   os = {
     type         = "hvm"
     type_arch    = "x86_64"
     type_machine = "q35"
     boot_devices = [
-        { dev = "hd" }
-      ]
+      { dev = "hd" }
+    ]
   }
 
   devices = {
     disks = [
       {
+        driver = {
+          name = "qemu"
+          type = "qcow2"
+        }
+
         source = {
           file = {
             file = libvirt_volume.volumes[each.value.name].path
