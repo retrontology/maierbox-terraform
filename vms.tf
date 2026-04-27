@@ -7,6 +7,15 @@ resource "libvirt_domain" "nodes" {
   vcpu   = each.value.vcpu
   type   = "kvm"
 
+  os = {
+    type         = "hvm"
+    type_arch    = "x86_64"
+    type_machine = "q35"
+    boot_devices = [
+        { dev = "hd" }
+      ]
+  }
+
   devices = {
     disks = [
       {
@@ -28,7 +37,7 @@ resource "libvirt_domain" "nodes" {
         }
         source = {
           network = {
-            network = libvirt_network.default.name
+            network = libvirt_network.k8s.name
           }
         }
       }
