@@ -39,3 +39,9 @@ variable "nodes" {
     }
   ]
 }
+
+variable "k8s_bridge_device" {
+  description = "Host bridge device used for the Kubernetes libvirt network."
+  type        = string
+  default     = "br-k8s"
+}

@@ -1,5 +1,11 @@
-resource "libvirt_network" "default" {
+resource "libvirt_network" "k8s" {
   name = "maierbox-k8s"
-  mode = "bridge"
-  bridge = "br0"
+
+  forward = {
+    mode = "bridge"
+  }
+
+  bridge = {
+    name = var.k8s_bridge_device
+  }
 }

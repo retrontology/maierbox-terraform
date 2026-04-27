@@ -1,24 +1,18 @@
 # Basic VM configuration
-resource "libvirt_domain" "example" {
-  name   = "example-vm"
-  memory = 2048
-  memory_unit   = "MiB"
-  vcpu   = 2
+resource "libvirt_domain" "nodes" {
+  for_each = { for node in var.nodes : node.name => node }
+  name   = each.value.name
+  memory = each.value.memory
+  memory_unit   = each.value.memory_unit
+  vcpu   = each.value.vcpu
   type   = "kvm"
-
-  os = {
-    type         = "hvm"
-    type_arch    = "x86_64"
-    type_machine = "q35"
-    boot_devices = ["hd", "network"]
-  }
 
   devices = {
     disks = [
       {
         source = {
           file = {
-            file = "/var/lib/libvirt/images/example.qcow2"
+            file = libvirt_volume.volumes[each.value.name].path
           }
         }
         target = {
@@ -34,7 +28,7 @@ resource "libvirt_domain" "example" {
         }
         source = {
           network = {
-            network = "default"
+            network = libvirt_network.default.name
           }
         }
       }
