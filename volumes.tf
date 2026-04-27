@@ -9,8 +9,8 @@ resource "libvirt_pool" "k8s" {
 
 # Base volume
 resource "libvirt_volume" "ubuntu-base" {
-  name   = "ubuntu-24.04.qcow2"
-  pool   = libvirt_pool.k8s.name
+  name = "ubuntu-24.04.qcow2"
+  pool = libvirt_pool.k8s.name
 
   target = {
     format = {
@@ -20,17 +20,17 @@ resource "libvirt_volume" "ubuntu-base" {
 
   create = {
     content = {
-        url = "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img"
+      url = "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img"
     }
   }
 }
 
 # Node volumes
 resource "libvirt_volume" "volumes" {
-  for_each = { for node in var.nodes : node.name => node }
-  name = "${each.value.name}-disk.qcow2"
-  pool = libvirt_pool.k8s.name
-  capacity = each.value.disk_capacity
+  for_each      = { for node in var.nodes : node.name => node }
+  name          = "${each.value.name}-disk.qcow2"
+  pool          = libvirt_pool.k8s.name
+  capacity      = each.value.disk_capacity
   capacity_unit = each.value.disk_unit
 
   target = {
@@ -40,10 +40,30 @@ resource "libvirt_volume" "volumes" {
   }
 
   backing_store = {
-    path   = libvirt_volume.ubuntu-base.path
+    path = libvirt_volume.ubuntu-base.path
     format = {
       type = "qcow2"
     }
   }
 
+}
+
+# Cloud-init ISO volumes
+resource "libvirt_volume" "cloudinit" {
+  for_each = { for node in var.nodes : node.name => node }
+
+  name = "${each.value.name}-cloudinit.iso"
+  pool = libvirt_pool.k8s.name
+
+  target = {
+    format = {
+      type = "iso"
+    }
+  }
+
+  create = {
+    content = {
+      url = libvirt_cloudinit_disk.nodes[each.key].path
+    }
+  }
 }

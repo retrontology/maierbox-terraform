@@ -35,6 +35,25 @@ resource "libvirt_domain" "nodes" {
           dev = "vda"
           bus = "virtio"
         }
+      },
+      {
+        device    = "cdrom"
+        read_only = true
+
+        driver = {
+          name = "qemu"
+          type = "raw"
+        }
+
+        source = {
+          file = {
+            file = libvirt_volume.cloudinit[each.key].path
+          }
+        }
+        target = {
+          dev = "sda"
+          bus = "sata"
+        }
       }
     ]
     interfaces = [
