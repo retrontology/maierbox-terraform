@@ -6,6 +6,8 @@ resource "libvirt_domain" "nodes" {
   memory_unit   = each.value.memory_unit
   vcpu   = each.value.vcpu
   type   = "kvm"
+  running = true
+  autostart = true
 
   os = {
     type         = "hvm"
